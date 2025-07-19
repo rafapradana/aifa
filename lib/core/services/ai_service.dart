@@ -15,7 +15,7 @@ class AIService {
       }
 
       _model = GenerativeModel(
-        model: 'gemini-1.5-flash',
+        model: 'gemma-3-27b-it',
         apiKey: apiKey,
         generationConfig: GenerationConfig(
           temperature: 0.7,
