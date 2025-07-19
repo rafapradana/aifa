@@ -1,7 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/providers/user_profile_provider.dart';
+
+class _NumberInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
+    // Remove any existing formatting
+    final String digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (digitsOnly.isEmpty) {
+      return const TextEditingValue();
+    }
+
+    // Format with thousand separators
+    final int value = int.parse(digitsOnly);
+    final String formatted = NumberFormat('#,###').format(value);
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -12,6 +42,7 @@ class OnboardingPage extends ConsumerStatefulWidget {
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final PageController _pageController = PageController();
+  final TextEditingController _incomeController = TextEditingController();
   int _currentPage = 0;
 
   // Onboarding data
@@ -20,6 +51,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   List<String> _selectedCategories = [];
   String? _userType;
   String _selectedCurrency = 'USD';
+
+  @override
+  void dispose() {
+    _incomeController.dispose();
+    super.dispose();
+  }
 
   final List<String> _availableCategories = [
     'Food & Dining',
@@ -294,6 +331,18 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             onChanged: (value) {
               setState(() {
                 _selectedCurrency = value!;
+                // Clear and reformat income when currency changes
+                if (_incomeController.text.isNotEmpty) {
+                  final rawValue = _incomeController.text.replaceAll(
+                    RegExp(r'[^\d]'),
+                    '',
+                  );
+                  if (rawValue.isNotEmpty) {
+                    _incomeController.text = NumberFormat(
+                      '#,###',
+                    ).format(int.parse(rawValue));
+                  }
+                }
               });
             },
           ),
@@ -301,7 +350,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           const SizedBox(height: 16),
 
           TextFormField(
+            controller: _incomeController,
             keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              _NumberInputFormatter(),
+            ],
             decoration: InputDecoration(
               labelText: 'Monthly Income',
               prefixText:
