@@ -117,7 +117,7 @@ class DashboardPage extends ConsumerWidget {
                   error: (_, __) => 'USD',
                 );
                 return Text(
-                  CurrencyFormatter.formatCurrency(
+                  CurrencyFormatter.formatWithCurrency(
                     totals['balance'] ?? 0,
                     currency,
                   ),
@@ -170,7 +170,7 @@ class DashboardPage extends ConsumerWidget {
                             error: (_, __) => 'IDR',
                           );
                           return Text(
-                            CurrencyFormatter.formatCurrency(
+                            CurrencyFormatter.formatWithCurrency(
                               totals['income'] ?? 0,
                               currency,
                             ),
@@ -203,7 +203,7 @@ class DashboardPage extends ConsumerWidget {
                             error: (_, __) => 'IDR',
                           );
                           return Text(
-                            CurrencyFormatter.formatCurrency(
+                            CurrencyFormatter.formatWithCurrency(
                               totals['expenses'] ?? 0,
                               currency,
                             ),
@@ -445,7 +445,7 @@ class DashboardPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${amount > 0 ? '+' : '-'}${CurrencyFormatter.formatCurrency(amount.abs(), currency)}',
+                    '${amount > 0 ? '+' : '-'}${CurrencyFormatter.formatWithCurrency(amount.abs(), currency)}',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: amount > 0 ? Colors.green : Colors.red,
